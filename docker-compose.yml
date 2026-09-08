@@ -26,7 +26,15 @@ services:
       redis: { condition: service_started }
   worker:
     build: ./backend
-    command: celery -A app.celery_app.celery_app worker --loglevel=info
+    user: "1000:1000"
+    command: celery -A app.celery_app.celery_app worker --loglevel=info --without-gossip --without-mingle
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=64m
     environment:
       DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in .env}
       REDIS_URL: redis://redis:6379/0
