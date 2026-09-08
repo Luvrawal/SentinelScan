@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sentinelscan}
+      POSTGRES_USER: ${POSTGRES_USER:-sentinel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes: [sentinel-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sentinel -d sentinelscan"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  redis:
+    image: redis:7.4-alpine
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in .env}
+      REDIS_URL: redis://redis:6379/0
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      NVD_API_KEY: ${NVD_API_KEY:-}
+    ports: ["${API_PORT:-8000}:8000"]
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_started }
+  worker:
+    build: ./backend
+    command: celery -A app.celery_app.celery_app worker --loglevel=info
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in .env}
+      REDIS_URL: redis://redis:6379/0
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      NVD_API_KEY: ${NVD_API_KEY:-}
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_started }
+  frontend:
+    build: ./frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-8000}
+    ports: ["${FRONTEND_PORT:-3000}:3000"]
+    depends_on: [backend]
+volumes:
+  sentinel-data:
