@@ -7,7 +7,8 @@ from .celery_app import celery_app
 from .config import get_settings
 from .db import SessionLocal
 from .models import Finding, Scan, Technology
-from .mapping import owasp_category, severity_bucket
+from .mapping import owasp_category
+from .scoring import cvss_severity
 from .security import validate_target_url, UnsafeTarget
 from .technology import extract_technology
 from .nvd import fetch_cves, persist_cves, technology_cpe
@@ -59,7 +60,7 @@ def run_scan(scan_id: str) -> None:
                         cvss = float(cvss) if cvss is not None else None
                     except (TypeError, ValueError):
                         cvss = None
-                    db.add(Finding(scan_id=scan.id, title=info.get("name", item.get("template-id", "Nuclei finding")), description=info.get("description") or "Detected by Nuclei.", severity=severity_bucket(cvss, str(info.get("severity", "Low"))), cvss_score=cvss, cve_id=(info.get("classification") or {}).get("cve-id"), owasp_category=owasp_category(tags), template_id=item.get("template-id"), evidence=item))
+                    db.add(Finding(scan_id=scan.id, title=info.get("name", item.get("template-id", "Nuclei finding")), description=info.get("description") or "Detected by Nuclei.", severity=cvss_severity(cvss, str(info.get("severity", "Low"))), cvss_score=cvss, cve_id=(info.get("classification") or {}).get("cve-id"), owasp_category=owasp_category(tags), template_id=item.get("template-id"), evidence=item))
                     technology = extract_technology(item)
                     if technology:
                         technology_key = (technology["name"], technology["version"], technology["category"])

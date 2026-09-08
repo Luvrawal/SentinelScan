@@ -13,6 +13,7 @@ from .reporting import pdf_response, report_html, sbom_json
 from .schemas import ScanAccepted, ScanCreate, ScanReport, ScanStatus
 from .security import reject_unsafe_target
 from .tasks import run_scan
+from .scoring import sort_findings
 
 app = FastAPI(title="SentinelScan API", version="0.1.0")
 app.add_middleware(
@@ -76,7 +77,7 @@ def scan_report(scan_id: UUID, db: Session = Depends(get_db)) -> ScanReport:
         raise HTTPException(status_code=404, detail="Scan not found")
     if scan.status != "done":
         raise HTTPException(status_code=409, detail="Report is not ready")
-    return ScanReport(scan_id=scan.id, target_url=scan.target_url, status=scan.status, executive_summary="Scan completed. Review the prioritized findings below.", technologies=scan.technologies, findings=scan.findings, pdf_url=f"/api/scan/{scan.id}/report.pdf", sbom_url=f"/api/scan/{scan.id}/sbom")
+    return ScanReport(scan_id=scan.id, target_url=scan.target_url, status=scan.status, executive_summary="Scan completed. Review the prioritized findings below.", technologies=scan.technologies, findings=sort_findings(scan.findings), pdf_url=f"/api/scan/{scan.id}/report.pdf", sbom_url=f"/api/scan/{scan.id}/sbom")
 
 
 @app.get("/api/scan/{scan_id}/report.pdf")
