@@ -10,6 +10,7 @@ from .models import Finding, Scan, Technology
 from .mapping import owasp_category, severity_bucket
 from .security import validate_target_url, UnsafeTarget
 from .technology import extract_technology
+from .nvd import fetch_cves, persist_cves, technology_cpe
 
 
 def update_scan(scan_id, status: str, progress: int, error: str | None = None) -> None:
@@ -63,7 +64,15 @@ def run_scan(scan_id: str) -> None:
                     if technology:
                         technology_key = (technology["name"], technology["version"], technology["category"])
                         if technology_key not in seen_technologies:
-                            db.add(Technology(scan_id=scan.id, **technology))
+                            technology_row = Technology(scan_id=scan.id, cpe=technology_cpe(Technology(**technology)), **technology)
+                            db.add(technology_row)
+                            db.flush()
+                            try:
+                                vulnerabilities = fetch_cves(db, technology_row, settings)
+                                persist_cves(db, scan.id, technology_row, vulnerabilities)
+                            except Exception:
+                                # NVD enrichment is best-effort; the core scan remains usable.
+                                pass
                             seen_technologies.add(technology_key)
                 scan.status, scan.progress = "done", 100
                 db.commit()

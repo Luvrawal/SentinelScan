@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from .db import Base, engine, get_db
+from .db import Base, engine, ensure_phase_2a_schema, get_db
 from .models import Scan
 from .auth import TokenRequest, issue_token
 from .reporting import pdf_response, report_html, sbom_json
@@ -27,6 +27,7 @@ app.add_middleware(
 @app.on_event("startup")
 def create_tables() -> None:
     Base.metadata.create_all(bind=engine)
+    ensure_phase_2a_schema()
 
 
 @app.get("/health")

@@ -1,6 +1,6 @@
 from collections.abc import Generator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from .config import get_settings
@@ -20,3 +20,13 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
+
+
+def ensure_phase_2a_schema() -> None:
+    """Add the Phase 2A columns/tables to existing hackathon databases."""
+    from .models import NvdCache, ScanCve
+
+    with engine.begin() as connection:
+        connection.execute(text("ALTER TABLE technologies ADD COLUMN IF NOT EXISTS cpe VARCHAR(512)"))
+        connection.execute(text("CREATE INDEX IF NOT EXISTS ix_technologies_cpe ON technologies (cpe)"))
+        Base.metadata.create_all(bind=connection, tables=[NvdCache.__table__, ScanCve.__table__])
