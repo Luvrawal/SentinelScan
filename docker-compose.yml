@@ -37,8 +37,6 @@ services:
       redis: { condition: service_started }
   frontend:
     build: ./frontend
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:${API_PORT:-8000}
     ports: ["${FRONTEND_PORT:-3000}:3000"]
     depends_on: [backend]
 volumes:

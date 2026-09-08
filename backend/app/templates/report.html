@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SentinelScan report</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    :root { color-scheme: light; }
+    body { color: #13211f; font-family: sans-serif; line-height: 1.45; margin: 0; }
+    header { border-bottom: 3px solid #df6d3f; margin-bottom: 24px; padding-bottom: 16px; }
+    h1 { font-size: 28px; margin: 0 0 8px; }
+    h2 { border-bottom: 1px solid #ccd5cb; font-size: 17px; margin: 28px 0 12px; padding-bottom: 6px; }
+    h3 { font-size: 14px; margin: 0 0 5px; }
+    .muted { color: #60716e; font-size: 11px; }
+    .summary { background: #f2f4ed; border-left: 5px solid #c7ef74; padding: 12px 14px; }
+    table { border-collapse: collapse; font-size: 10px; width: 100%; }
+    th { background: #13211f; color: white; text-align: left; }
+    td, th { border: 1px solid #ccd5cb; padding: 7px; vertical-align: top; }
+    .finding { border: 1px solid #ccd5cb; margin: 12px 0; padding: 12px; page-break-inside: avoid; }
+    .pill { border: 1px solid #ccd5cb; display: inline-block; font-size: 10px; padding: 2px 6px; }
+    .critical { color: #9f2f22; } .high { color: #b25322; } .medium { color: #806516; } .low { color: #356c4f; }
+    pre { background: #f2f4ed; font-size: 10px; overflow-wrap: anywhere; padding: 8px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>SentinelScan security report</h1>
+    <div class="muted">Target: {{ target }}</div>
+    <div class="muted">Generated: {{ generated_at }}</div>
+  </header>
+
+  <section>
+    <h2>Executive summary</h2>
+    <div class="summary">{{ summary }}</div>
+  </section>
+
+  <section>
+    <h2>Technology profile</h2>
+    {% if technologies %}
+    <table>
+      <thead><tr><th>Technology</th><th>Version</th><th>Category</th><th>Source</th></tr></thead>
+      <tbody>{% for tech in technologies %}<tr><td>{{ tech.name }}</td><td>{{ tech.version or 'Unknown' }}</td><td>{{ tech.category or 'Technology' }}</td><td>{{ tech.source }}</td></tr>{% endfor %}</tbody>
+    </table>
+    {% else %}<p class="muted">No technology profile entries were detected.</p>{% endif %}
+  </section>
+
+  <section>
+    <h2>Findings table</h2>
+    {% if findings %}
+    <table>
+      <thead><tr><th>Finding</th><th>Severity</th><th>CVSS</th><th>OWASP</th><th>CVE</th></tr></thead>
+      <tbody>{% for item in findings %}<tr><td>{{ item.title }}</td><td class="{{ item.severity|lower }}">{{ item.severity }}</td><td>{{ item.cvss_score if item.cvss_score is not none else 'Not scored' }}</td><td>{{ item.owasp_category }}</td><td>{{ item.cve_id or 'None' }}</td></tr>{% endfor %}</tbody>
+    </table>
+    {% else %}<p class="muted">No findings were detected.</p>{% endif %}
+  </section>
+
+  <section>
+    <h2>Finding details</h2>
+    {% for item in findings %}
+    <article class="finding">
+      <h3>{{ item.title }}</h3>
+      <div><span class="pill {{ item.severity|lower }}">{{ item.severity }}</span> <span class="pill">{{ item.owasp_category }}</span>{% if item.cve_id %} <span class="pill">{{ item.cve_id }}</span>{% endif %}</div>
+      <p>{{ item.description }}</p>
+      {% if item.evidence %}<div class="muted">Evidence retained from the detection engine.</div>{% endif %}
+    </article>
+    {% else %}<p class="muted">There are no finding detail cards for this scan.</p>{% endfor %}
+  </section>
+
+  <section>
+    <h2>Remediation</h2>
+    {% for item in findings %}
+    <article class="finding">
+      <h3>{{ item.title }}</h3>
+      <p>{{ item.remediation or 'Remediation guidance is pending. Review the evidence and apply the vendor-recommended fix.' }}</p>
+    </article>
+    {% else %}<p class="muted">No remediation actions are required for this report.</p>{% endfor %}
+  </section>
+</body>
+</html>

@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+.report-shell { border-top: 1px solid var(--line); padding-top: 2rem; }
+.report-heading { align-items: end; display: flex; justify-content: space-between; gap: 1rem; }
+.report-heading h2, .report-shell > h2 { font-size: 1.5rem; margin: .4rem 0 1rem; }
+.download { background: var(--orange); color: white; padding: .8rem 1rem; text-decoration: none; }
+.summary-card { background: var(--ink); color: white; margin: 1.5rem 0 2rem; padding: 1.4rem; }
+.summary-card p:last-child { line-height: 1.6; margin-bottom: 0; }
+.tech-grid { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.tech-card, .detail-card { background: #fffef9; border: 1px solid var(--line); padding: 1rem; }
+.tech-card span, .tech-card small { color: var(--muted); display: block; margin-top: .35rem; }
+.finding-table { border: 1px solid var(--line); }
+.finding-row { align-items: center; border-top: 1px solid var(--line); display: grid; gap: .8rem; grid-template-columns: minmax(0, 2fr) repeat(3, 1fr); padding: .85rem 1rem; }
+.finding-header { background: var(--ink); border-top: 0; color: white; font: .75rem 'DM Mono', monospace; text-transform: uppercase; }
+.severity { font: 500 .75rem 'DM Mono', monospace; text-transform: uppercase; }
+.severity.critical { color: #a92e22; } .severity.high { color: #c05b26; } .severity.medium { color: #806516; } .severity.low { color: #356c4f; }
+.detail-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.detail-card h3 { margin: .9rem 0 .5rem; } .detail-card h4 { border-top: 1px solid var(--line); margin: 1rem 0 .35rem; padding-top: .8rem; } .detail-meta { display: flex; flex-wrap: wrap; gap: .7rem; color: var(--muted); font: .7rem 'DM Mono', monospace; }
+.muted { color: var(--muted); }
 :root { --ink: #13211f; --muted: #60716e; --paper: #f2f4ed; --lime: #c7ef74; --line: #ccd5cb; --orange: #df6d3f; }
 * { box-sizing: border-box; }
 body { margin: 0; background: radial-gradient(circle at 80% 10%, #e4edcf 0, transparent 35%), var(--paper); color: var(--ink); font-family: 'Space Grotesk', sans-serif; }
