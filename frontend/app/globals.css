@@ -6,6 +6,8 @@
 .report-heading { align-items: end; display: flex; justify-content: space-between; gap: 1rem; }
 .report-heading h2, .report-shell > h2 { font-size: 1.5rem; margin: .4rem 0 1rem; }
 .download { background: var(--orange); color: white; padding: .8rem 1rem; text-decoration: none; }
+.report-actions { display: flex; flex-wrap: wrap; gap: .6rem; }
+.download.secondary { background: var(--ink); }
 .summary-card { background: var(--ink); color: white; margin: 1.5rem 0 2rem; padding: 1.4rem; }
 .summary-card p:last-child { line-height: 1.6; margin-bottom: 0; }
 .tech-grid { display: grid; gap: .8rem; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }

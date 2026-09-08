@@ -12,6 +12,7 @@ from .scoring import cvss_severity
 from .security import validate_target_url, UnsafeTarget
 from .technology import extract_technology
 from .nvd import fetch_cves, persist_cves, technology_cpe
+from .phase3 import cookie_findings, dns_findings, kev_cves, mark_kev_findings
 
 
 def update_scan(scan_id, status: str, progress: int, error: str | None = None) -> None:
@@ -75,6 +76,13 @@ def run_scan(scan_id: str) -> None:
                                 # NVD enrichment is best-effort; the core scan remains usable.
                                 pass
                             seen_technologies.add(technology_key)
+                hostname = scan.target_url.split("//", 1)[-1].split("/", 1)[0].split(":", 1)[0]
+                custom_findings = dns_findings(hostname) + cookie_findings(scan.target_url)
+                for custom in custom_findings:
+                    db.add(Finding(scan_id=scan.id, title=custom["title"], description=custom["description"], severity=cvss_severity(None, "Low"), cvss_score=None, cve_id=None, owasp_category=custom["owasp"], template_id=None, evidence={"source": "phase3-custom"}))
+                db.flush()
+                kev_ids = kev_cves(db)
+                mark_kev_findings(db, list(scan.findings), kev_ids)
                 scan.status, scan.progress = "done", 100
                 db.commit()
     except Exception:

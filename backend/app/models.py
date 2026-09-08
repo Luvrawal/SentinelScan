@@ -74,6 +74,16 @@ class NvdCache(Base):
     last_error: Mapped[str | None] = mapped_column(Text)
 
 
+class KevCache(Base):
+    __tablename__ = "kev_cache"
+    feed_key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    response_body: Mapped[list] = mapped_column(JSON, default=list)
+    cve_ids: Mapped[list] = mapped_column(JSON, default=list)
+    fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    last_error: Mapped[str | None] = mapped_column(Text)
+
+
 class ScanCve(Base):
     __tablename__ = "scan_cves"
     __table_args__ = (UniqueConstraint("scan_id", "technology_id", "cve_id", name="uq_scan_technology_cve"),)

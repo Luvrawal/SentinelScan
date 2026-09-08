@@ -49,7 +49,7 @@
     {% if findings %}
     <table>
       <thead><tr><th>Finding</th><th>Severity</th><th>CVSS</th><th>OWASP</th><th>CVE</th></tr></thead>
-      <tbody>{% for item in findings %}<tr><td>{{ item.title }}</td><td class="{{ item.severity|lower }}">{{ item.severity }}</td><td>{{ item.cvss_score if item.cvss_score is not none else 'Not scored' }}</td><td>{{ item.owasp_category }}</td><td>{{ item.cve_id or 'None' }}</td></tr>{% endfor %}</tbody>
+      <tbody>{% for item in findings %}<tr><td>{{ item.title }}{% if item.kev_known_exploited %} <strong>KEV</strong>{% endif %}</td><td class="{{ item.severity|lower }}">{{ item.severity }}</td><td>{{ item.cvss_score if item.cvss_score is not none else 'Not scored' }}</td><td>{{ item.owasp_category }}</td><td>{{ item.cve_id or 'None' }}</td></tr>{% endfor %}</tbody>
     </table>
     {% else %}<p class="muted">No findings were detected.</p>{% endif %}
   </section>
@@ -59,7 +59,7 @@
     {% for item in findings %}
     <article class="finding">
       <h3>{{ item.title }}</h3>
-      <div><span class="pill {{ item.severity|lower }}">{{ item.severity }}</span> <span class="pill">{{ item.owasp_category }}</span>{% if item.cve_id %} <span class="pill">{{ item.cve_id }}</span>{% endif %}</div>
+      <div><span class="pill {{ item.severity|lower }}">{{ item.severity }}</span> <span class="pill">{{ item.owasp_category }}</span>{% if item.cve_id %} <span class="pill">{{ item.cve_id }}</span>{% endif %}{% if item.kev_known_exploited %} <span class="pill critical">Known exploited</span>{% endif %}</div>
       <p>{{ item.description }}</p>
       {% if item.evidence %}<div class="muted">Evidence retained from the detection engine.</div>{% endif %}
     </article>

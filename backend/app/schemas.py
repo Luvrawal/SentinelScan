@@ -46,6 +46,7 @@ class TechnologyResponse(BaseModel):
     version: str | None
     category: str | None
     source: str
+    cpe: str | None
 
 
 class ScanReport(BaseModel):

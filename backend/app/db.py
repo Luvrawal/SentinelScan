@@ -24,9 +24,9 @@ def get_db() -> Generator[Session, None, None]:
 
 def ensure_phase_2a_schema() -> None:
     """Add the Phase 2A columns/tables to existing hackathon databases."""
-    from .models import NvdCache, ScanCve
+    from .models import KevCache, NvdCache, ScanCve
 
     with engine.begin() as connection:
         connection.execute(text("ALTER TABLE technologies ADD COLUMN IF NOT EXISTS cpe VARCHAR(512)"))
         connection.execute(text("CREATE INDEX IF NOT EXISTS ix_technologies_cpe ON technologies (cpe)"))
-        Base.metadata.create_all(bind=connection, tables=[NvdCache.__table__, ScanCve.__table__])
+        Base.metadata.create_all(bind=connection, tables=[KevCache.__table__, NvdCache.__table__, ScanCve.__table__])
